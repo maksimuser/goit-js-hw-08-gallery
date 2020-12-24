@@ -1,10 +1,11 @@
 import gallery from './gallery-items.js';
 
 const refs = {
-  galleryRef: document.querySelector('.js-gallery'),
+  galleryBox: document.querySelector('.js-gallery'),
   largeImage: document.querySelector('.lightbox__image'),
   openModalBtn: document.querySelector('.js-lightbox'),
   closeModalBtn: document.querySelector('button[data-action="close-lightbox"]'),
+  overlay: document.querySelector('.lightbox__overlay'),
 };
 
 const createGallery = item => {
@@ -29,11 +30,12 @@ const createGallery = item => {
 
 const itemsGallery = gallery.map(galleryItem => createGallery(galleryItem));
 
-refs.galleryRef.append(...itemsGallery);
-console.log(refs.galleryRef);
+refs.galleryBox.append(...itemsGallery);
+console.log(refs.galleryBox);
 
-refs.galleryRef.addEventListener('click', onGalleryClick);
-refs.closeModalBtn.addEventListener('click', closeModal);
+refs.galleryBox.addEventListener('click', onGalleryClick);
+refs.closeModalBtn.addEventListener('click', onCloseModal);
+refs.overlay.addEventListener('click', onOverlayClick);
 
 function onGalleryClick(event) {
   event.preventDefault();
@@ -48,13 +50,29 @@ function onGalleryClick(event) {
   refs.largeImage.src = largeImgUrl;
   refs.largeImage.alt = largeImgAlt;
 
+  onOpenModal(event);
+}
+
+function onOpenModal(event) {
   if (event.target.nodeName === 'IMG') {
     refs.openModalBtn.classList.add('is-open');
   }
+
+  window.addEventListener('keydown', event => {
+    if (event.code === 'Escape') {
+      onCloseModal();
+    }
+  });
 }
 
-function closeModal() {
+function onCloseModal() {
   refs.openModalBtn.classList.remove('is-open');
   refs.largeImage.src = '';
   refs.largeImage.alt = '';
+}
+
+function onOverlayClick(event) {
+  if (event.target === event.currentTarget) {
+    onCloseModal();
+  }
 }
