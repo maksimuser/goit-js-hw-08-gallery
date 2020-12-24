@@ -1,6 +1,11 @@
 import gallery from './gallery-items.js';
 
-const galleryRef = document.querySelector('.js-gallery');
+const refs = {
+  galleryRef: document.querySelector('.js-gallery'),
+  largeImage: document.querySelector('.lightbox__image'),
+  openModalBtn: document.querySelector('.js-lightbox'),
+  closeModalBtn: document.querySelector('button[data-action="close-lightbox"]'),
+};
 
 const createGallery = item => {
   const listRef = document.createElement('li');
@@ -24,12 +29,11 @@ const createGallery = item => {
 
 const itemsGallery = gallery.map(galleryItem => createGallery(galleryItem));
 
-galleryRef.append(...itemsGallery);
-console.log(galleryRef);
+refs.galleryRef.append(...itemsGallery);
+console.log(refs.galleryRef);
 
-// Реализация делегирования на галерее ul.js-gallery и получение url большого изображения
-galleryRef.addEventListener('click', onGalleryClick);
-const largeImage = document.querySelector('.lightbox__image');
+refs.galleryRef.addEventListener('click', onGalleryClick);
+refs.closeModalBtn.addEventListener('click', closeModal);
 
 function onGalleryClick(event) {
   event.preventDefault();
@@ -41,20 +45,16 @@ function onGalleryClick(event) {
   const largeImgUrl = event.target.dataset.source;
   const largeImgAlt = event.target.alt;
 
-  //   console.log('largeImgUrl: ', largeImgUrl);
-  largeImage.src = largeImgUrl;
-  largeImage.alt = largeImgAlt;
-  //   console.log(largeImage);
+  refs.largeImage.src = largeImgUrl;
+  refs.largeImage.alt = largeImgAlt;
+
+  if (event.target.nodeName === 'IMG') {
+    refs.openModalBtn.classList.add('is-open');
+  }
 }
 
-// Открытие модального окна по клику на элементе галереи
-const openModalBtn = document.querySelector('.js-lightbox');
-openModalBtn.classList.add('is-open');
-
-const closeModalBtn = document.querySelector(
-  'button[data-action="close-lightbox"]',
-);
-
-closeModalBtn.addEventListener('click', () => {
-  openModalBtn.classList.remove('is-open');
-});
+function closeModal() {
+  refs.openModalBtn.classList.remove('is-open');
+  refs.largeImage.src = '';
+  refs.largeImage.alt = '';
+}
