@@ -58,14 +58,11 @@ function onOpenModal(event) {
     refs.openModalBtn.classList.add('is-open');
   }
 
-  window.addEventListener('keydown', event => {
-    if (event.code === 'Escape') {
-      onCloseModal();
-    }
-  });
+  window.addEventListener('keydown', onPressEscape);
 }
 
 function onCloseModal() {
+  window.removeEventListener('keydown', onPressEscape);
   refs.openModalBtn.classList.remove('is-open');
   refs.largeImage.src = '';
   refs.largeImage.alt = '';
@@ -73,6 +70,12 @@ function onCloseModal() {
 
 function onOverlayClick(event) {
   if (event.target === event.currentTarget) {
+    onCloseModal();
+  }
+}
+
+function onPressEscape(event) {
+  if (event.code === 'Escape') {
     onCloseModal();
   }
 }
