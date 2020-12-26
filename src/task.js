@@ -8,6 +8,8 @@ const refs = {
   overlay: document.querySelector('.lightbox__overlay'),
 };
 
+let index = 0;
+
 const createGallery = item => {
   const listRef = document.createElement('li');
   listRef.classList.add('gallery__item');
@@ -21,6 +23,8 @@ const createGallery = item => {
   imageRef.setAttribute('src', item.preview);
   imageRef.setAttribute('data-source', item.original);
   imageRef.setAttribute('alt', item.description);
+
+  imageRef.setAttribute('data-index', (index += 1));
 
   linkRef.appendChild(imageRef);
   listRef.appendChild(linkRef);
@@ -59,6 +63,23 @@ function onOpenModal(event) {
   }
 
   window.addEventListener('keydown', onPressEscape);
+
+  index = +event.target.dataset.index - 1;
+  window.addEventListener('keydown', onSwitchPicture);
+}
+
+function onSwitchPicture(event) {
+  if (event.code === 'ArrowRight') {
+    if (index >= gallery.length - 1) {
+      return;
+    }
+    refs.largeImage.src = gallery[(index += 1)].original;
+  } else if (event.code === 'ArrowLeft') {
+    if (index === 0) {
+      return;
+    }
+    refs.largeImage.src = gallery[(index -= 1)].original;
+  }
 }
 
 function onCloseModal() {
