@@ -10,7 +10,7 @@ const refs = {
 
 let index = 0;
 
-const createGallery = (item, index) => {
+const createGallery = item => {
   const listRef = document.createElement('li');
   listRef.classList.add('gallery__item');
 
@@ -24,7 +24,7 @@ const createGallery = (item, index) => {
   imageRef.setAttribute('data-source', item.original);
   imageRef.setAttribute('alt', item.description);
 
-  imageRef.setAttribute('data-index', index);
+  imageRef.setAttribute('data-index', (index += 1));
 
   linkRef.appendChild(imageRef);
   listRef.appendChild(linkRef);
@@ -32,14 +32,14 @@ const createGallery = (item, index) => {
   return listRef;
 };
 
-const itemsGallery = gallery.map(createGallery);
+const itemsGallery = gallery.map(galleryItem => createGallery(galleryItem));
 
 refs.galleryBox.append(...itemsGallery);
 console.log(refs.galleryBox);
 
 refs.galleryBox.addEventListener('click', onGalleryClick);
 refs.closeModalBtn.addEventListener('click', onCloseModal);
-refs.overlay.addEventListener('click', onCloseModal);
+refs.overlay.addEventListener('click', onOverlayClick);
 
 function onGalleryClick(event) {
   event.preventDefault();
@@ -51,35 +51,48 @@ function onGalleryClick(event) {
   const largeImgUrl = event.target.dataset.source;
   const largeImgAlt = event.target.alt;
 
-  setLargeImage(largeImgUrl, largeImgAlt);
+  refs.largeImage.src = largeImgUrl;
+  refs.largeImage.alt = largeImgAlt;
 
-  refs.openModalBtn.classList.add('is-open');
+  onOpenModal(event);
+}
+
+function onOpenModal(event) {
+  if (event.target.nodeName === 'IMG') {
+    refs.openModalBtn.classList.add('is-open');
+  }
 
   window.addEventListener('keydown', onPressEscape);
 
-  index = +event.target.dataset.index;
-  console.log(index);
+  index = +event.target.dataset.index - 1;
   window.addEventListener('keydown', onSwitchPicture);
 }
 
-function setLargeImage(imageUrl, imageDescription) {
-  refs.largeImage.src = imageUrl;
-  refs.largeImage.alt = imageDescription;
-}
-
 function onSwitchPicture(event) {
-  if (event.code === 'ArrowRight' && index < gallery.length - 1) {
-    setLargeImage(gallery[(index += 1)].original, gallery[index].description);
-  } else if (event.code === 'ArrowLeft' && index > 0) {
-    setLargeImage(gallery[(index -= 1)].original), gallery[index].description;
+  if (event.code === 'ArrowRight') {
+    if (index >= gallery.length - 1) {
+      return;
+    }
+    refs.largeImage.src = gallery[(index += 1)].original;
+  } else if (event.code === 'ArrowLeft') {
+    if (index === 0) {
+      return;
+    }
+    refs.largeImage.src = gallery[(index -= 1)].original;
   }
 }
 
 function onCloseModal() {
   window.removeEventListener('keydown', onPressEscape);
-  window.removeEventListener('keydown', onSwitchPicture);
   refs.openModalBtn.classList.remove('is-open');
-  setLargeImage('', '');
+  refs.largeImage.src = '';
+  refs.largeImage.alt = '';
+}
+
+function onOverlayClick(event) {
+  if (event.target === event.currentTarget) {
+    onCloseModal();
+  }
 }
 
 function onPressEscape(event) {
